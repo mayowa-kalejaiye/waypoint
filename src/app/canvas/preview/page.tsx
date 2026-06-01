@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import CanvasLoadingScreen from "@/components/CanvasLoadingScreen";
 import CanvasResultPage from "@/components/CanvasResults";
-import { isCurriculumFinalized, waitForCurriculum } from "@/lib/api";
+import { waitForCurriculum } from "@/lib/api";
 
 function curriculumToCanvasNodes(curriculum) {
   return curriculum.weeks?.flatMap((week, weekIndex) =>
@@ -55,7 +55,7 @@ export default function CanvasPreviewPage() {
             const cached = window.localStorage.getItem(cacheKey);
             if (cached) {
               const parsed = JSON.parse(cached);
-              if (!cancelled && parsed?.curriculum_id === curriculumId && isCurriculumFinalized(parsed)) {
+              if (!cancelled && parsed?.curriculum_id === curriculumId) {
                 setLoadingProgress(100);
                 setCurriculum(parsed);
                 return;
@@ -67,7 +67,7 @@ export default function CanvasPreviewPage() {
           const response = await fetch(`/api/v1/curriculum/${curriculumId}`);
           if (response.ok) {
             const data = await response.json();
-            if (!cancelled && isCurriculumFinalized(data)) {
+            if (!cancelled) {
               setLoadingProgress(100);
               setCurriculum(data);
               try {
@@ -75,9 +75,6 @@ export default function CanvasPreviewPage() {
                   window.localStorage.setItem(cacheKey, JSON.stringify(data));
                 }
               } catch {}
-            } else if (!cancelled) {
-              setJobStatus("loading");
-              setLoadingProgress(60);
             }
           }
           return;
@@ -108,12 +105,8 @@ export default function CanvasPreviewPage() {
 
         const stored = window.localStorage.getItem("waypoint:curriculum:last");
         if (stored) {
-          const parsed = JSON.parse(stored);
-          if (!cancelled && isCurriculumFinalized(parsed)) {
-            setCurriculum(parsed);
-          } else if (!cancelled) {
-            setJobStatus("loading");
-            setLoadingProgress(60);
+          if (!cancelled) {
+            setCurriculum(JSON.parse(stored));
           }
           return;
         }
@@ -135,25 +128,15 @@ export default function CanvasPreviewPage() {
   const links = useMemo(() => (curriculum ? synthesizeCanvasLinks(curriculum) : []), [curriculum]);
 
   if (!curriculum) {
-      if (jobStatus === "error") {
-        return <div className="p-8 text-primary">Unable to load canvas preview.</div>;
-      }
-  
-      if (searchParams.get("job_id") || searchParams.get("curriculum_id") || jobStatus === "loading") {
-        return <CanvasLoadingScreen visible={true} title="Loading your results" statusMessage="Please wait while we build the canvas" />;
-    }
-
-    return <div className="min-h-screen bg-[#090909]" />;
+    return jobStatus === "error" ? (
+      <div className="p-8 text-primary">Unable to load canvas preview.</div>
+    ) : (
+      <CanvasLoadingScreen visible={true} title="Preparing preview" statusMessage="Assembling the canvas from backend progress" progress={loadingProgress} />
+    );
   }
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#090909] text-primary">
-      {curriculum.warning ? (
-        <div className="absolute left-4 right-4 top-4 z-30 rounded-2xl border border-[color:rgba(255,177,77,0.35)] bg-[color:rgba(255,177,77,0.12)] px-4 py-3 text-[color:#ffcf8f] shadow-[0_16px_40px_rgba(0,0,0,0.25)] backdrop-blur-sm sm:left-6 sm:right-6">
-          <p className="font-mono text-[10px] uppercase tracking-[0.35em]">Warning</p>
-          <p className="mt-1 text-sm leading-6">{curriculum.warning}</p>
-        </div>
-      ) : null}
       <CanvasResultPage
         key={curriculum.curriculum_id || curriculum.topic || "preview"}
         embedded

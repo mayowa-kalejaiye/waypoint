@@ -30,11 +30,114 @@ const CANVAS_MIN_SCALE = 0.48;
 const CANVAS_MAX_SCALE = 1.9;
 const SIDEBAR_WIDTH = "clamp(360px, 28vw, 460px)";
 
-const DEFAULT_CURRICULUM_TITLE = "Your curriculum";
+const DEFAULT_CURRICULUM_TITLE = "Machine Learning";
 
-const DEFAULT_NODES = [];
-
-const INTERACTIVE_SELECTOR = "button, a, input, textarea, select, label";
+const DEFAULT_NODES = [
+  {
+    id: "ml-1",
+    week: 1,
+    day: 1,
+    concept: "Foundations",
+    title: "What machine learning actually is",
+    channel: "StatQuest",
+    duration_seconds: 760,
+    score: 96,
+    youtube_id: "GwIo3gDZCVQ",
+    thumbnail_url: "https://img.youtube.com/vi/GwIo3gDZCVQ/hqdefault.jpg",
+    completed: true,
+  },
+  {
+    id: "ml-2",
+    week: 1,
+    day: 2,
+    concept: "Linear Models",
+    title: "Linear regression without the fluff",
+    channel: "StatQuest",
+    duration_seconds: 920,
+    score: 91,
+    youtube_id: "J_LnPL3Qg70",
+    thumbnail_url: "https://img.youtube.com/vi/J_LnPL3Qg70/hqdefault.jpg",
+    completed: true,
+  },
+  {
+    id: "ml-3",
+    week: 1,
+    day: 3,
+    concept: "Classification",
+    title: "Decision boundaries and logistic intuition",
+    channel: "3Blue1Brown",
+    duration_seconds: 860,
+    score: 88,
+    youtube_id: "aircAruvnKk",
+    thumbnail_url: "https://img.youtube.com/vi/aircAruvnKk/hqdefault.jpg",
+    completed: false,
+  },
+  {
+    id: "ml-4",
+    week: 1,
+    day: 4,
+    concept: "Evaluation",
+    title: "How to measure real model quality",
+    channel: "Google Cloud Tech",
+    duration_seconds: 980,
+    score: 90,
+    youtube_id: "fSytzGwwBVw",
+    thumbnail_url: "https://img.youtube.com/vi/fSytzGwwBVw/hqdefault.jpg",
+    completed: false,
+  },
+  {
+    id: "ml-5",
+    week: 2,
+    day: 5,
+    concept: "Feature Engineering",
+    title: "Feature prep that actually changes outcomes",
+    channel: "AssemblyAI",
+    duration_seconds: 1040,
+    score: 87,
+    youtube_id: "7R8Scm5jlhg",
+    thumbnail_url: "https://img.youtube.com/vi/7R8Scm5jlhg/hqdefault.jpg",
+    completed: false,
+  },
+  {
+    id: "ml-6",
+    week: 2,
+    day: 6,
+    concept: "Tree Models",
+    title: "Trees, random forests, and boosted ensembles",
+    channel: "StatQuest",
+    duration_seconds: 1120,
+    score: 94,
+    youtube_id: "J4Wdy0Wc_xQ",
+    thumbnail_url: "https://img.youtube.com/vi/J4Wdy0Wc_xQ/hqdefault.jpg",
+    completed: false,
+  },
+  {
+    id: "ml-7",
+    week: 2,
+    day: 7,
+    concept: "Neural Nets",
+    title: "Neural networks and representation learning",
+    channel: "3Blue1Brown",
+    duration_seconds: 1180,
+    score: 92,
+    youtube_id: "IHZwWFHWa-w",
+    thumbnail_url: "https://img.youtube.com/vi/IHZwWFHWa-w/hqdefault.jpg",
+    completed: false,
+  },
+  {
+    id: "ml-8",
+    week: 2,
+    day: 8,
+    concept: "Deployment",
+    title: "Shipping, monitoring, and iterating models",
+    channel: "Full Stack Deep Learning",
+    duration_seconds: 1010,
+    score: 89,
+    youtube_id: "xC-c7E5PK0Y",
+    thumbnail_url: "https://img.youtube.com/vi/xC-c7E5PK0Y/hqdefault.jpg",
+    completed: false,
+  },
+];
 
 const DEFAULT_LINKS = [
   { id: "link-1", from: "ml-1", to: "ml-2" },
@@ -68,21 +171,6 @@ function formatDuration(seconds) {
   return remainingMinutes ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
 }
 
-function formatNodeTime(node) {
-  if (!node) return "—";
-  if (node.source_type && node.source_type !== "youtube" && typeof node.reading_time_minutes === "number" && node.reading_time_minutes > 0) {
-    const minutes = Math.max(1, Math.round(node.reading_time_minutes));
-    const hours = Math.floor(minutes / 60);
-    const remainder = minutes % 60;
-    if (hours > 0) {
-      return remainder ? `${hours}h ${remainder}m read` : `${hours}h read`;
-    }
-    return `${minutes}m read`;
-  }
-
-  return formatDuration(node.duration_seconds);
-}
-
 function formatDayLabel(dayNumber) {
   return `Day ${String(dayNumber).padStart(2, "0")}`;
 }
@@ -98,35 +186,28 @@ function getThumbnail(node) {
 }
 
 function normalizeNodes(inputNodes) {
-  const sourceNodes = Array.isArray(inputNodes) ? inputNodes : [];
-
-  if (!sourceNodes.length) {
-    return [];
-  }
+  const sourceNodes = Array.isArray(inputNodes) && inputNodes.length ? inputNodes : DEFAULT_NODES;
 
   return sourceNodes.slice(0, 8).map((node, index) => {
-    const fallbackNode = DEFAULT_NODES[index] || DEFAULT_NODES[DEFAULT_NODES.length - 1] || {};
-    const defaultDuration = typeof fallbackNode.duration_seconds === "number" ? fallbackNode.duration_seconds : 0;
-    const durationSeconds = typeof node.duration_seconds === "number" ? node.duration_seconds : defaultDuration;
-    const fallbackYoutubeId = typeof fallbackNode.youtube_id === "string" ? fallbackNode.youtube_id : "";
-    const fallbackThumbnail = typeof fallbackNode.thumbnail_url === "string" ? fallbackNode.thumbnail_url : "";
+    const fallbackNode = DEFAULT_NODES[index] || DEFAULT_NODES[DEFAULT_NODES.length - 1];
+    const durationSeconds = typeof node.duration_seconds === "number" ? node.duration_seconds : fallbackNode.duration_seconds;
 
     return {
       ...fallbackNode,
       ...node,
-      id: node.id || fallbackNode.id || `node-${index + 1}`,
-      title: node.title || fallbackNode.title || `Lesson ${index + 1}`,
-      channel: node.channel || fallbackNode.channel || "Groq",
+      id: node.id || fallbackNode.id,
+      title: node.title || fallbackNode.title,
+      channel: node.channel || fallbackNode.channel,
       duration_seconds: durationSeconds,
-      score: typeof node.score === "number" ? node.score : typeof fallbackNode.score === "number" ? fallbackNode.score : 0,
-      youtube_id: node.youtube_id || fallbackYoutubeId,
+      score: typeof node.score === "number" ? node.score : fallbackNode.score,
+      youtube_id: node.youtube_id || fallbackNode.youtube_id,
       thumbnail_url:
         node.thumbnail_url ||
-        (node.youtube_id || fallbackYoutubeId ? `https://img.youtube.com/vi/${node.youtube_id || fallbackYoutubeId}/hqdefault.jpg` : fallbackThumbnail),
-      week: typeof fallbackNode.week === "number" ? fallbackNode.week : index + 1,
-      day: typeof fallbackNode.day === "number" ? fallbackNode.day : index + 1,
-      concept: fallbackNode.concept || "Lesson",
-      completed: typeof node.completed === "boolean" ? node.completed : Boolean(fallbackNode.completed),
+        (node.youtube_id || fallbackNode.youtube_id ? `https://img.youtube.com/vi/${node.youtube_id || fallbackNode.youtube_id}/hqdefault.jpg` : fallbackNode.thumbnail_url),
+      week: fallbackNode.week,
+      day: fallbackNode.day,
+      concept: fallbackNode.concept,
+      completed: typeof node.completed === "boolean" ? node.completed : fallbackNode.completed,
     };
   });
 }
@@ -502,7 +583,7 @@ function SidebarContent({
               <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-[color:var(--accent)]">{nextNode.concept}</p>
               <p className="line-clamp-2 text-[13px] font-semibold leading-5 text-primary">{nextNode.title}</p>
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--text-secondary)]">
-                {nextNode.channel} · {formatNodeTime(nextNode)}
+                {nextNode.channel} · {formatDuration(nextNode.duration_seconds)}
               </p>
               <button
                 type="button"
@@ -636,7 +717,7 @@ function SidebarContent({
         <p>Selected lesson</p>
         <p className="mt-2 truncate text-[12px] tracking-normal text-primary">{selectedNode?.title || "No lesson selected"}</p>
         <p className="mt-1 truncate tracking-normal text-[color:var(--text-muted)]">
-          {selectedNode ? `${selectedNode.channel} · ${formatNodeTime(selectedNode)}` : "Choose a card to focus the sidebar."}
+          {selectedNode ? `${selectedNode.channel} · ${formatDuration(selectedNode.duration_seconds)}` : "Choose a card to focus the sidebar."}
         </p>
         <p className="mt-3 tracking-normal text-[color:var(--text-muted)]">State: {selectedCompleted ? "done" : selectedIndex >= 0 ? "in progress" : "up next"}</p>
       </div>
@@ -865,13 +946,7 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
   const completedCount = completedIds.size;
   const completionPercent = normalizedNodes.length ? Math.round((completedCount / normalizedNodes.length) * 100) : 0;
   const streakCount = calculateStreak(normalizedNodes, completedIds);
-  const watchedHoursTotal = normalizedNodes.reduce(
-    (total, node) =>
-      completedIds.has(node.id)
-        ? total + ((node.source_type && node.source_type !== "youtube" ? (node.reading_time_minutes || 0) * 60 : node.duration_seconds || 0) / 3600)
-        : total,
-    0,
-  );
+  const watchedHoursTotal = normalizedNodes.reduce((total, node) => (completedIds.has(node.id) ? total + (node.duration_seconds || 0) / 3600 : total), 0);
   const completedCountAnimated = useCountUpValue(completedCount, 850, 100);
   const completionPercentAnimated = useCountUpValue(completionPercent, 1100, 0);
   const streakAnimated = useCountUpValue(streakCount, 850, 200);
@@ -919,7 +994,6 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
   const nodePositionPairs = useMemo(() => normalizedNodes.map((node) => [node.id, positions[node.id] || initialPositions[node.id] || { left: 0, top: 0 }]), [initialPositions, normalizedNodes, positions]);
   const nodePositionLookup = useMemo(() => new Map(nodePositionPairs), [nodePositionPairs]);
   const visibleView = isCompactViewport && activeView === "canvas" ? "list" : activeView;
-  const hasCurriculum = normalizedNodes.length > 0;
 
   useEffect(() => {
     if (visibleView === "canvas") {
@@ -1168,9 +1242,8 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
 
       <div className={embedded ? "relative h-[calc(100%-3.5rem)] lg:pr-[clamp(360px,28vw,460px)]" : "relative h-[calc(100vh-3.5rem)] lg:pr-[clamp(360px,28vw,460px)]"}>
         <main className="relative h-full overflow-hidden">
-          {hasCurriculum ? (
-            <AnimatePresence mode="wait">
-              <motion.div key={visibleView} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.18, ease: "easeOut" }} className="relative h-full">
+          <AnimatePresence mode="wait">
+            <motion.div key={visibleView} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.18, ease: "easeOut" }} className="relative h-full">
               {visibleView === "canvas" ? (
                 <div
                   ref={viewportRef}
@@ -1192,7 +1265,7 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
                   }}
                   onDoubleClick={(event) => {
                     const targetElement = event.target instanceof Element ? event.target : null;
-                    if (targetElement?.closest(INTERACTIVE_SELECTOR)) return;
+                    if (targetElement?.closest("button, a, input, textarea, select, label, [role='button']")) return;
                     event.preventDefault();
                     event.stopPropagation();
                     const zoomDirection = event.altKey || event.shiftKey ? -0.18 : 0.18;
@@ -1201,7 +1274,7 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
                   onPointerDown={(event) => {
                     if (event.button !== 0) return;
                     const targetElement = event.target instanceof Element ? event.target : null;
-                    if (targetElement?.closest(INTERACTIVE_SELECTOR)) return;
+                    if (targetElement?.closest("button, a, input, textarea, select, label, [role='button']")) return;
                     panStateRef.current = {
                       startClientX: event.clientX,
                       startClientY: event.clientY,
@@ -1234,11 +1307,8 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
                           transition={{ duration: 0.35, delay: animationDelay, ease: [0.22, 1, 0.36, 1] }}
                           whileHover={{ scale: isSelected ? 1.03 : 1.02 }}
                           whileTap={{ scale: 0.99 }}
-                          onPointerDownCapture={(event) => {
+                          onPointerDown={(event) => {
                             if (event.button !== 0) return;
-                            const targetElement = event.target instanceof Element ? event.target : null;
-                            const interactiveChild = targetElement?.closest(INTERACTIVE_SELECTOR);
-                            if (interactiveChild && interactiveChild !== event.currentTarget) return;
                             event.preventDefault();
                             event.stopPropagation();
                             const startPosition = positionsRef.current[node.id];
@@ -1256,7 +1326,7 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
                             if (moveStateRef.current) return;
                             setSelectedNodeId(node.id);
                           }}
-                          className={`group absolute overflow-hidden rounded-[8px] border text-left shadow-[0_4px_24px_rgba(0,0,0,0.4)] transition-all duration-200 select-none ${
+                          className={`group absolute overflow-hidden rounded-[8px] border text-left shadow-[0_4px_24px_rgba(0,0,0,0.4)] transition-all duration-200 ${
                             isSelected
                               ? "border-[2px] border-[color:var(--accent)] shadow-[0_18px_46px_rgba(0,0,0,0.6),0_0_30px_rgba(200,254,2,0.14)]"
                               : isCompleted
@@ -1265,10 +1335,10 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
                           }`}
                           role="button"
                           tabIndex={0}
-                          style={{ left: position.left, top: position.top, width: CANVAS_CARD_WIDTH, height: CANVAS_CARD_HEIGHT, background: "var(--bg-card)", opacity: isCompleted ? 0.58 : 1, transition: "opacity 0.25s ease-out", touchAction: "none" }}
+                          style={{ left: position.left, top: position.top, width: CANVAS_CARD_WIDTH, height: CANVAS_CARD_HEIGHT, background: "var(--bg-card)", opacity: isCompleted ? 0.58 : 1, transition: "opacity 0.25s ease-out" }}
                         >
                           <div className="relative h-16 w-full overflow-hidden">
-                            <img src={getThumbnail(node)} alt={node.title} className="h-full w-full object-cover transition duration-200 group-hover:brightness-110" loading="lazy" draggable={false} />
+                            <img src={getThumbnail(node)} alt={node.title} className="h-full w-full object-cover transition duration-200 group-hover:brightness-110" loading="lazy" />
                             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30" />
                             <div className="absolute right-2 top-2 rounded-full border border-[color:rgba(200,254,2,0.15)] bg-[color:rgba(0,0,0,0.52)] px-2 py-1 font-mono text-[9px] uppercase tracking-[0.28em] text-[color:var(--accent)] backdrop-blur-sm">
                               STEP {String(node.day).padStart(2, "0")}
@@ -1287,7 +1357,7 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
                             </p>
 
                             <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
-                              {node.channel} · {formatNodeTime(node)}
+                              {node.channel} · {formatDuration(node.duration_seconds)}
                             </p>
 
                             <div className="mt-auto flex items-center gap-1.5">
@@ -1535,13 +1605,7 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
                             {branchPointCount} branch points
                           </span>
                           <span className="rounded-full border border-[color:var(--border)] bg-[color:var(--bg-card)] px-3 py-1 font-mono text-[9px] uppercase tracking-[0.22em] text-[color:var(--text-secondary)]">
-                            {Math.round(
-                              normalizedNodes.reduce(
-                                (sum, node) =>
-                                  sum + ((node.source_type && node.source_type !== "youtube" ? (node.reading_time_minutes || 0) * 60 : node.duration_seconds || 0) / 3600),
-                                0,
-                              ),
-                            )}h study
+                            {Math.round(normalizedNodes.reduce((sum, node) => sum + (node.duration_seconds || 0), 0) / 3600)}h video
                           </span>
                         </div>
                       </div>
@@ -1570,7 +1634,7 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
                                   <div className="flex items-center justify-between gap-3">
                                     <span className="font-mono text-[9px] uppercase tracking-[0.28em] text-[color:var(--text-secondary)]">Day {String(node.day).padStart(2, "0")}</span>
                                     <span className="rounded-full border border-[color:rgba(200,254,2,0.14)] bg-[color:rgba(200,254,2,0.08)] px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.24em] text-[color:var(--accent)]">
-                                      {formatNodeTime(node)}
+                                      {formatDuration(node.duration_seconds)}
                                     </span>
                                   </div>
                                   <p className="mt-3 line-clamp-2 text-sm font-semibold leading-5 text-primary">{node.title}</p>
@@ -1656,7 +1720,7 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
                                         <p className="truncate font-mono text-[9px] uppercase tracking-[0.24em] text-black/85">{node.concept}</p>
                                         <p className="mt-1 truncate text-[12px] font-semibold leading-4 text-white">{node.title}</p>
                                         <p className="mt-1 truncate font-mono text-[9px] uppercase tracking-[0.18em] text-white/70">
-                                          {node.channel} · {formatNodeTime(node)} · {node.score}%
+                                          {node.channel} · {formatDuration(node.duration_seconds)} · {node.score}%
                                         </p>
                                       </button>
                                     );
@@ -1671,19 +1735,8 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
                   </div>
                 </div>
               )}
-              </motion.div>
-            </AnimatePresence>
-          ) : (
-            <div className="flex h-full items-center justify-center px-6 py-10">
-              <div className="max-w-xl rounded-[24px] border border-[color:var(--border)] bg-[color:var(--bg-card)] p-6 text-center shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-                <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-[color:var(--accent)]">No curriculum yet</p>
-                <h2 className="mt-3 font-display text-[2rem] text-primary">Waiting for Groq output</h2>
-                <p className="mt-3 text-sm leading-6 text-[color:var(--text-secondary)]">
-                  The backend didn’t return any lessons, so the app will stay empty instead of inventing a demo path.
-                </p>
-              </div>
-            </div>
-          )}
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         <aside className={`${embedded ? "absolute" : "fixed"} right-0 top-14 hidden h-[calc(100vh-3.5rem)] overflow-y-auto border-l border-[color:var(--border)] bg-[color:var(--bg-secondary)] lg:block ${sidebarPulseToken ? "shadow-[inset_0_0_0_1px_rgba(200,254,2,0.15)]" : ""}`} style={{ width: SIDEBAR_WIDTH }}>
@@ -1791,11 +1844,11 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
               dayLabel: formatDayLabel(normalizedNodes.find((node) => node.id === watchingNodeId)?.day || 1),
               concept: normalizedNodes.find((node) => node.id === watchingNodeId)?.concept,
               channel: normalizedNodes.find((node) => node.id === watchingNodeId)?.channel,
-              durationLabel: formatNodeTime(normalizedNodes.find((node) => node.id === watchingNodeId)),
+              durationLabel: formatDuration(normalizedNodes.find((node) => node.id === watchingNodeId)?.duration_seconds),
               scoreLabel: `${normalizedNodes.find((node) => node.id === watchingNodeId)?.score || 0}%`,
               whyThisVideo: "This lesson is positioned in the sequence to move the curriculum forward with the next concept.",
               projectTitle: title,
-              projectDescription: "A structured learning path with a clear progression from intuition to deployment.",
+              projectDescription: "A structured machine learning path with a clear progression from intuition to deployment.",
               transcriptAvailable: true,
               durationAdvice: "Aim to complete the watch session in one sitting, then mark the lesson complete to unlock the next step.",
             }}
@@ -1823,7 +1876,7 @@ export default function CanvasResultPage({ nodes: incomingNodes, links: incoming
             <p className="font-mono text-[9px] uppercase tracking-[0.24em] text-[color:var(--accent)]">{timelineTooltip.node.concept}</p>
             <p className="mt-1 text-[13px] font-semibold text-primary">{timelineTooltip.node.title}</p>
             <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.18em] text-[color:var(--text-secondary)]">
-              {timelineTooltip.node.channel} · {formatNodeTime(timelineTooltip.node)} · {timelineTooltip.node.score}%
+              {timelineTooltip.node.channel} · {formatDuration(timelineTooltip.node.duration_seconds)} · {timelineTooltip.node.score}%
             </p>
           </motion.div>
         ) : null}
