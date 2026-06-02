@@ -1,4 +1,4 @@
-# Waypoint Frontend
+# Waypoint Frontend Documentation
 
 A modern, responsive Next.js application that provides an intuitive interface for generating personalized learning curricula. Built with TypeScript, Tailwind CSS, and optimized for performance and accessibility.
 
