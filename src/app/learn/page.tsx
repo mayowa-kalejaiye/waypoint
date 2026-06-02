@@ -136,7 +136,7 @@ export default function LearnPage() {
             links: [],
             meta: { created_at: new Date().toISOString(), source: "learn", curriculum_id: curriculumId },
             session_id: (window as typeof window & { __learning_session_id?: string }).__learning_session_id || "anon",
-            title: curriculum.topic || "Learning canvas",
+            title: curriculum?.topic || "Learning canvas",          
           }),
         });
 
