@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 type MenuContextType = {
   open: boolean;
   setOpen: (v: boolean) => void;
-  anchorRef: React.RefObject<HTMLElement> | null;
+  anchorRef: React.RefObject<HTMLElement | null>;
 };
 
 const MenuContext = createContext<MenuContextType | null>(null);

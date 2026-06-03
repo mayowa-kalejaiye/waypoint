@@ -1,10 +1,13 @@
-import { DM_Mono, Instrument_Serif, Geist } from "next/font/google";
+import { DM_Mono, Instrument_Serif, Inter} from "next/font/google";
 import type { Metadata, Viewport } from "next";
+
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
+const geist = Inter({ 
+  subsets: ['latin'], 
+  variable: '--font-geist' 
+})
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: ["400"],

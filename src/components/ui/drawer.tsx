@@ -8,11 +8,12 @@ export function Drawer({ children }: { children: React.ReactNode }) {
   return <DrawerContext.Provider value={{ open, setOpen }}>{children}</DrawerContext.Provider>;
 }
 
-export function DrawerTrigger({ children }: { children: React.ReactNode }) {
+export function DrawerTrigger({ children, asChild }: { children: React.ReactNode; asChild?: boolean }) {
   const ctx = useContext(DrawerContext);
   if (!ctx) return <>{children}</>;
-  const child = React.Children.only(children) as React.ReactElement;
-  return React.cloneElement(child, {
+  const child = React.Children.only(children) as React.ReactElement<{ onClick?: (e: any) => void }>;
+  const element = asChild ? child : <button type="button">{child}</button>;
+  return React.cloneElement(element, {
     onClick: (e: any) => {
       e?.stopPropagation();
       ctx.setOpen(true);
@@ -36,7 +37,7 @@ export function DrawerContent({ children }: { children: React.ReactNode }) {
 export function DrawerClose({ children }: { children: React.ReactNode; asChild?: boolean }) {
   const ctx = useContext(DrawerContext);
   if (!ctx) return <>{children}</>;
-  const child = React.Children.only(children) as React.ReactElement;
+  const child = React.Children.only(children) as React.ReactElement<{ onClick?: (e: any) => void }>;
   return React.cloneElement(child, {
     onClick: (e: any) => {
       e?.stopPropagation();

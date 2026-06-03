@@ -1,7 +1,4 @@
-"use client";
-
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+"use client"; import { useEffect, useMemo, useState, Suspense } from "react"; import { useSearchParams } from "next/navigation";
 import CanvasLoadingScreen from "@/components/CanvasLoadingScreen";
 import CanvasResultPage from "@/components/CanvasResults";
 import { waitForCurriculum } from "@/lib/api";
@@ -46,7 +43,7 @@ function synthesizeCanvasLinks(curriculum: Curriculum | null | undefined) {
   return links;
 }
 
-export default function CanvasPreviewPage() {
+export default function CanvasPreviewPage() { return ( <Suspense fallback={<CanvasLoadingScreen visible={true} title="Loading preview" statusMessage="Please wait while we build the canvas" />}> <CanvasPreviewPageInner /> </Suspense> ); } function CanvasPreviewPageInner() {
   const [curriculum, setCurriculum] = useState<Curriculum | null>(null);
   const [jobStatus, setJobStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [loadingProgress, setLoadingProgress] = useState(0);

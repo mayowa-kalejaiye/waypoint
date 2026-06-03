@@ -1,8 +1,4 @@
-"use client";
-
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+"use client"; import { useEffect, useMemo, useRef, useState, Suspense } from "react"; import { useSearchParams } from "next/navigation"; import { useRouter } from "next/navigation";
 import LearnInput from "@/components/LearnInput";
 import CanvasLoadingScreen from "@/components/CanvasLoadingScreen";
 import CanvasResults from "@/components/CanvasResults";
@@ -65,6 +61,14 @@ function curriculumToNodes(curriculum: Curriculum): NodeItem[] {
 }
 
 export default function LearnPage() {
+  return (
+    <Suspense fallback={<CanvasLoadingScreen visible={true} title="Loading your results" statusMessage="Please wait while we build the canvas" />}>
+      <LearnPageInner />
+    </Suspense>
+  );
+}
+
+function LearnPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const curriculumId = searchParams.get("curriculum_id") || undefined;
