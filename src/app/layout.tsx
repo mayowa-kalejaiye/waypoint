@@ -1,6 +1,9 @@
-import { DM_Mono, Instrument_Serif } from "next/font/google";
+import { DM_Mono, Instrument_Serif, Geist } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
@@ -45,7 +48,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <body className={`${instrumentSerif.variable} ${dmMono.variable} bg-app text-primary`}>{children}</body>
     </html>
   );
