@@ -94,7 +94,7 @@ npm install
 ```bash
 # Create .env.local file
 cat > .env.local << EOF
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 EOF
 ```
 
@@ -116,13 +116,13 @@ npm start
 
 ### Development Environment (.env.local)
 ```
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 NEXT_PUBLIC_ENVIRONMENT=development
 ```
 
 ### Production Environment
 ```
-NEXT_PUBLIC_API_URL=https://api.waypoint.com
+NEXT_PUBLIC_API_BASE_URL=https://api.waypoint.com
 NEXT_PUBLIC_ENVIRONMENT=production
 ```
 
@@ -466,7 +466,7 @@ npm start
 Build and run with Docker:
 ```bash
 docker build -t waypoint-frontend:latest .
-docker run -p 3000:3000 -e NEXT_PUBLIC_API_URL=... waypoint-frontend:latest
+docker run -p 3000:3000 -e NEXT_PUBLIC_API_BASE_URL=... waypoint-frontend:latest
 ```
 
 ## Development Workflow
@@ -583,7 +583,7 @@ npm run type-check
 ### Runtime Errors
 
 **API connection failed**
-- Verify `NEXT_PUBLIC_API_URL` is correct
+- Verify `NEXT_PUBLIC_API_BASE_URL` is correct
 - Check backend is running
 - Check browser console for CORS errors
 
