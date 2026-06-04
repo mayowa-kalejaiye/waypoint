@@ -289,7 +289,7 @@ export default function HomePage() {
               </div>
 
               <p className="mx-auto max-w-3xl text-base leading-7 text-muted sm:text-lg">
-                Tell Waypoint the outcome, and it gives you the best sequenced video playlist in about 30 seconds.
+                Tell Waypoint the outcome, and it gives you the best sequenced video playlist in about 5 minutes.
                 Less noise, better order, and a canvas you can keep moving in.
               </p>
 
