@@ -271,7 +271,7 @@ export default function HomePage() {
             <div className="space-y-5">
               <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-[color:rgba(200,254,2,0.18)] bg-[color:rgba(200,254,2,0.06)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.35em] text-accent">
                 <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--accent)] shadow-[0_0_18px_rgba(200,254,2,0.55)]" />
-                Phase 1 launch
+                STATUS: ACTIVE
               </div>
 
               <div className="flex flex-wrap justify-center gap-2 text-[clamp(2.4rem,9.6vw,6.8rem)] font-display leading-[0.9] text-primary sm:gap-3 sm:text-[clamp(3rem,7.6vw,7.2rem)]">
